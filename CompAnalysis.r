@@ -28,7 +28,7 @@ BinCompPwr <- function(
 		alph = 0.05)
 {
 	N <- N1 + N2;
-	tht = w * sqrt(N);
+	tht <- w * sqrt(N);
 	q <- qnorm(1 - alph/2);
 	pwr <- 1 - (pnorm(q, tht) - pnorm(-q, tht));
 		# pwr coincides with pwr.chisq.test(w, N, 1, alph)$power
