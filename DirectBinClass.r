@@ -40,19 +40,29 @@ BA <- function(pred, y)
 } 
 
 
-# Model
+# Models
 
 LnrClsPred <- function(x1, x2, a, b)
 {
 	x2 < a * x1 + b
 }
 
+LnrClsPred3d <- function(x1, x2, x3, a, b, c)
+{
+	x3 < a * x1 + b * x2 + c
+}
 
-# Objective function 
+
+# Objective functions 
 
 LnrClsObj <- function(ab, x1, x2, y, w)
 {
 	WA(LnrClsPred(x1, x2, ab[1], ab[2]), y, w)
+}
+
+LnrClsObj3d <- function(abc, x1, x2, x3, y, w)
+{
+	WA(LnrClsPred3d(x1, x2, x3, abc[1], abc[2], abc[3]), y, w)
 }
 
 
@@ -65,6 +75,23 @@ LnrClsFit <- function(x1, x2, y, w, lower, upper)
 	for (i in 1:5)
 	{
 		res <- psoptim(c(1, 1), LnrClsObj, x1 = x1, x2 = x2, y = y, w = w, lower = lower, upper = upper, control = list(fnscale = -1, s = 50, maxit = 1000));
+		if (-res$value > best)
+		{
+			best <- -res$value;
+			bestRes <- res;
+		}
+	}
+
+	bestRes;
+}
+
+LnrClsFit3d <- function(x1, x2, x3, y, w, lower, upper, rp = 1)   
+{
+	best <- 0;	
+
+	for (i in 1:rp)
+	{
+		res <- psoptim(c(0, 0, 0), LnrClsObj3d, x1 = x1, x2 = x2, x3 = x3, y = y, w = w, lower = lower, upper = upper, control = list(fnscale = -1, s = 100, maxit = 5000));
 		if (-res$value > best)
 		{
 			best <- -res$value;
