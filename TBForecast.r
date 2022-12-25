@@ -20,10 +20,12 @@ shapiro.test(d_log_mort[1:11])
 library(outliers)
 grubbs.test(d_log_mort, type = 10)
 
+###########################################
 library(bsts)
 ss <- list()
-ss <- AddLocalLevel(ss, mort[2:13])
-mdl_mort <- bsts(mort[2:13] ~ scr[1:12], timestamps = tsm[2:13], state.specification = ss, niter = 1500, seed = 2022)
+ss <- AddLocalLinearTrend(ss, mort[2:13])
+mdl_mort <- bsts(mort[2:13]~scr[1:12], family = "student", state.specification = ss, niter = 1500, seed = 2022, timestamps = tsm[2:13])
+##########################################
 
 pdf(file = "mort_fitting.pdf", width=15, height=8)
 plot(mdl_mort)
@@ -35,9 +37,9 @@ qqdist(draws = residuals(mdl_mort))
 AcfDist(draws = residuals(mdl_mort))
 dev.off()
 
-cons_mort <- predict(mdl_mort, horizon = 5, newdata = c(70.8, 47.37, 58.95, 60.00, 62.11))$mean
-base_mort <- predict(mdl_mort, horizon = 5, newdata = c(70.8, 75.89, 76.74, 77.04, 77.66))$mean
-optm_mort <- predict(mdl_mort, horizon = 5, newdata = c(70.8, 82.11, 85.26, 86.32, 88.42))$mean
+predict(mdl_mort, horizon = 5, newdata = c(70.8, 47.37, 58.95, 60.00, 62.11))$median
+predict(mdl_mort, horizon = 5, newdata = c(70.8, 75.89, 76.74, 77.04, 77.66))$median
+predict(mdl_mort, horizon = 5, newdata = c(70.8, 82.11, 85.26, 86.32, 88.42))$median
 
 ## Incidence analysis
 #########################################################################
@@ -55,11 +57,12 @@ shapiro.test(d_log_incd[c(1:10, 12)])
 library(outliers)
 grubbs.test(d_log_incd, type = 10)
 
+##########################################
 library(bsts)
 ss <- list()
-ss <- AddAutoAr(ss, incd, lag = 5)
-ss <- AddSemilocalLinearTrend(ss, incd)
-mdl_incd <- bsts(incd ~ scr, state.specification = ss, timestamps = tsm, family = "student", niter = 1500, seed = 2022)
+ss <- AddLocalLinearTrend(ss, incd)
+mdl_incd <- bsts(incd ~ scr, state.specification = ss, family = "student", timestamps = tsm, niter = 1500, seed = 2022)
+##############################################
 
 pdf(file = "incd_fitting.pdf", width=15, height=6)
 plot(mdl_incd)
@@ -71,6 +74,6 @@ qqdist(draws = residuals(mdl_incd), ylim = c(-5,5))
 AcfDist(draws = residuals(mdl_incd))
 dev.off()
 
-cons_incd <- predict(mdl_incd, horizon = 5, newdata = c(47.37, 58.95, 60.00, 62.11, 63.16))$mean
-base_incd <- predict(mdl_incd, horizon = 5, newdata = c(75.89, 76.74, 77.04, 77.66, 78.15))$mean
-optm_incd <- predict(mdl_incd, horizon = 5, newdata = c(82.11, 85.26, 86.32, 88.42, 89.47))$mean
+predict(mdl_incd, horizon = 5, newdata = c(47.37, 58.95, 60.00, 62.11, 63.16))$median
+predict(mdl_incd, horizon = 5, newdata = c(75.89, 76.74, 77.04, 77.66, 78.15))$median
+predict(mdl_incd, horizon = 5, newdata = c(82.11, 85.26, 86.32, 88.42, 89.47))$median
