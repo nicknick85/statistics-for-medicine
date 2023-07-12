@@ -4,6 +4,9 @@ BinComp <- function(
 		x,         # Success of non-exposed patients or control
 		y)         # Success of exposed patients or case
 {
+	x <- x[!is.na(x)];
+	y <- y[!is.na(y)];
+	
 	N1 <- length(x);
 	N2 <- length(y);
 	N <- N1 + N2;
